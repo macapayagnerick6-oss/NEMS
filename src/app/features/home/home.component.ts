@@ -38,7 +38,7 @@ import { WeatherMapComponent } from '../weather-map/weather-map.component';
         />
       </section>
 
-      <section id="map" class="page__map nems-enter nems-enter--fade nems-enter--d1">
+      <section id="map" class="page__map">
         <app-weather-map
           [activeLocation]="location()"
           [selectedDate]="selectedDate()"

@@ -1,5 +1,5 @@
 import {
-  afterNextRender,
+  AfterViewInit,
   Component,
   DestroyRef,
   effect,
@@ -8,9 +8,11 @@ import {
   input,
   OnDestroy,
   output,
+  PLATFORM_ID,
   signal,
   viewChild,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, first, of } from 'rxjs';
 import type { LayerGroup, Map as LeafletMap, Marker } from 'leaflet';
@@ -91,6 +93,18 @@ const toFallbackLocation = (lat: number, lon: number): Location => ({
   country: 'Philippines',
 });
 
+type LeafletNamespace = typeof import('leaflet');
+
+const resolveLeafletModule = (
+  loaded: LeafletNamespace & { default?: LeafletNamespace },
+): LeafletNamespace => {
+  const candidate = loaded.default ?? loaded;
+  if (typeof candidate.map !== 'function') {
+    throw new Error('Leaflet module did not load correctly');
+  }
+  return candidate;
+};
+
 @Component({
   selector: 'app-weather-map',
   template: `
@@ -142,6 +156,11 @@ const toFallbackLocation = (lat: number, lon: number): Location => ({
     </section>
   `,
   styles: `
+    :host {
+      display: block;
+      transform: none;
+    }
+
     .map-section {
       padding: 1rem 1.25rem 1.25rem;
     }
@@ -289,7 +308,7 @@ const toFallbackLocation = (lat: number, lon: number): Location => ({
     .map-section__swatch--cloud { background: var(--map-cloud); }
   `,
 })
-export class WeatherMapComponent implements OnDestroy {
+export class WeatherMapComponent implements AfterViewInit, OnDestroy {
   readonly activeLocation = input<Location | null>(null);
   readonly selectedDate = input<string>(new Date().toISOString().slice(0, 10));
   readonly locationSelect = output<Location>();
@@ -298,6 +317,7 @@ export class WeatherMapComponent implements OnDestroy {
   private readonly weatherService = inject(WeatherService);
   private readonly geocoding = inject(GeocodingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly gridLoading = signal(false);
   protected readonly resolvingClick = signal(false);
@@ -312,12 +332,9 @@ export class WeatherMapComponent implements OnDestroy {
   private clickResolveId = 0;
   private readonly mapReady = signal(false);
   private resizeObserver: ResizeObserver | null = null;
+  private leafletModule: LeafletNamespace | null = null;
 
   constructor() {
-    afterNextRender(() => {
-      this.scheduleMapInit();
-    });
-
     effect(() => {
       if (!this.mapReady()) {
         return;
@@ -332,7 +349,14 @@ export class WeatherMapComponent implements OnDestroy {
       }
       this.loadGrid(date);
     });
+  }
 
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.scheduleMapInit();
   }
 
   ngOnDestroy(): void {
@@ -395,15 +419,16 @@ export class WeatherMapComponent implements OnDestroy {
     this.map.flyToBounds(bounds, { padding: [24, 24], duration: 0.8 });
   }
 
-  private leafletModule: typeof import('leaflet') | null = null;
-
-  private getLeafletSync(): typeof import('leaflet') | null {
+  private getLeafletSync(): LeafletNamespace | null {
     return this.leafletModule;
   }
 
-  private async getLeaflet(): Promise<typeof import('leaflet')> {
+  private async getLeaflet(): Promise<LeafletNamespace> {
     if (!this.leafletModule) {
-      this.leafletModule = await import('leaflet');
+      const loaded = await import('leaflet');
+      this.leafletModule = resolveLeafletModule(
+        loaded as LeafletNamespace & { default?: LeafletNamespace },
+      );
     }
     return this.leafletModule;
   }
@@ -414,47 +439,55 @@ export class WeatherMapComponent implements OnDestroy {
       return;
     }
 
-    const L = await this.getLeaflet();
+    try {
+      const L = await this.getLeaflet();
 
-    const maxBounds = L.latLngBounds(
-      [MINDANAO_BOUNDS.south - 0.5, MINDANAO_BOUNDS.west - 0.5],
-      [MINDANAO_BOUNDS.north + 0.5, MINDANAO_BOUNDS.east + 0.5],
-    );
+      const maxBounds = L.latLngBounds(
+        [MINDANAO_BOUNDS.south - 0.5, MINDANAO_BOUNDS.west - 0.5],
+        [MINDANAO_BOUNDS.north + 0.5, MINDANAO_BOUNDS.east + 0.5],
+      );
 
-    this.map = L.map(container, {
-      center: MAP_CENTER,
-      zoom: MAP_ZOOM,
-      scrollWheelZoom: true,
-      maxBounds,
-      maxBoundsViscosity: 0.85,
-      minZoom: 6,
-      maxZoom: 14,
-    });
+      this.map = L.map(container, {
+        center: MAP_CENTER,
+        zoom: MAP_ZOOM,
+        scrollWheelZoom: true,
+        maxBounds,
+        maxBoundsViscosity: 0.85,
+        minZoom: 6,
+        maxZoom: 14,
+      });
 
-    L.tileLayer(MAP_TILE_URL, {
-      attribution: MAP_TILE_ATTRIBUTION,
-      maxZoom: 19,
-    }).addTo(this.map);
+      L.tileLayer(MAP_TILE_URL, {
+        attribution: MAP_TILE_ATTRIBUTION,
+        maxZoom: 19,
+      }).addTo(this.map);
 
-    this.gridLayer = L.layerGroup().addTo(this.map);
-    this.presetLayer = L.layerGroup().addTo(this.map);
+      this.gridLayer = L.layerGroup().addTo(this.map);
+      this.presetLayer = L.layerGroup().addTo(this.map);
 
-    void this.renderPresetMarkers();
+      void this.renderPresetMarkers();
 
-    this.map.on('click', (event) => {
-      this.resolveMapClick(event.latlng.lat, event.latlng.lng);
-    });
+      this.map.on('click', (event) => {
+        this.resolveMapClick(event.latlng.lat, event.latlng.lng);
+      });
 
-    this.map.on('zoomend', () => {
-      this.syncGridVisibility();
-    });
+      this.map.on('zoomend', () => {
+        this.syncGridVisibility();
+      });
 
-    this.watchMapContainer(container);
-    this.mapReady.set(true);
+      this.watchMapContainer(container);
+      this.mapReady.set(true);
+      this.refreshMapSize();
+    } catch {
+      this.leafletModule = null;
+      this.map = null;
+    }
+  }
 
-    requestAnimationFrame(() => {
-      this.map?.invalidateSize();
-    });
+  private refreshMapSize(): void {
+    for (const delay of [0, 100, 400, 900]) {
+      setTimeout(() => this.map?.invalidateSize(), delay);
+    }
   }
 
   private loadGrid(date: string): void {
