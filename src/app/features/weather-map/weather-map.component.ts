@@ -311,10 +311,11 @@ export class WeatherMapComponent implements OnDestroy {
   private gridLoadId = 0;
   private clickResolveId = 0;
   private readonly mapReady = signal(false);
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
     afterNextRender(() => {
-      void this.initMap();
+      this.scheduleMapInit();
     });
 
     effect(() => {
@@ -335,11 +336,46 @@ export class WeatherMapComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     this.clearActiveMarker();
     this.gridLayer?.clearLayers();
     this.presetLayer?.clearLayers();
     this.map?.remove();
     this.map = null;
+  }
+
+  private scheduleMapInit(attempt = 0): void {
+    const container = this.mapContainer()?.nativeElement;
+    if (container && !this.map) {
+      void this.initMap();
+      return;
+    }
+
+    if (attempt < 12) {
+      setTimeout(() => this.scheduleMapInit(attempt + 1), 50);
+    }
+  }
+
+  private watchMapContainer(container: HTMLElement): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.map?.invalidateSize();
+    });
+    this.resizeObserver.observe(container);
+
+    let node: HTMLElement | null = container;
+    while (node) {
+      if (node.classList.contains('nems-enter')) {
+        node.addEventListener(
+          'animationend',
+          () => {
+            requestAnimationFrame(() => this.map?.invalidateSize());
+          },
+          { once: true },
+        );
+      }
+      node = node.parentElement;
+    }
   }
 
   protected handleFitRegion(): void {
@@ -413,6 +449,7 @@ export class WeatherMapComponent implements OnDestroy {
       this.syncGridVisibility();
     });
 
+    this.watchMapContainer(container);
     this.mapReady.set(true);
 
     requestAnimationFrame(() => {
