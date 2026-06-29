@@ -1,0 +1,35 @@
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: -20% -10% auto;
+  height: 55vh;
+  background: var(--shell-glow);
+  pointer-events: none;
+  z-index: -1;
+  animation: nems-bg-drift 18s ease-in-out infinite;
+}
+
+.app-main {
+  min-height: calc(100vh - var(--nav-height, 3.5rem));
+}
+
+.app-main > * {
+  animation: nems-fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell::before {
+    animation: none;
+  }
+
+  .app-main > * {
+    animation: none;
+  }
+}

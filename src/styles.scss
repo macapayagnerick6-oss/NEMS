@@ -1,1 +1,542 @@
-/* You can add global styles to this file, and also import other style files */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --space-section: 1.25rem;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --nav-height: 3.5rem;
+  --map-rain: #3b82f6;
+  --map-hot: #f59e0b;
+  --map-cloud: #94a3b8;
+  --map-storm: #8b5cf6;
+}
+
+html[data-theme='light'] {
+  --bg: #eef6fc;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text-primary: #0c1222;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --text-placeholder: #64748b;
+  --hero-text-subtle: rgba(255, 255, 255, 0.92);
+  --hero-text-faint: rgba(255, 255, 255, 0.82);
+  --hero-metric-label: rgba(255, 255, 255, 0.88);
+  --accent: #0284c7;
+  --accent-dark: #0369a1;
+  --accent-soft: #e0f2fe;
+  --accent-ring: #7dd3fc;
+  --accent-glow: rgba(2, 132, 199, 0.15);
+  --danger: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow-sm: 0 1px 3px rgba(2, 132, 199, 0.06);
+  --shadow-md: 0 4px 16px rgba(2, 132, 199, 0.08);
+  --hero-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 55%, #0369a1 100%);
+  --metric-rain-bg: #eff6ff;
+  --metric-rain-border: #bfdbfe;
+  --metric-rain-text: #1d4ed8;
+  --metric-humidity-bg: #ecfeff;
+  --metric-humidity-border: #a5f3fc;
+  --metric-humidity-text: #0e7490;
+  --metric-wind-bg: #f5f3ff;
+  --metric-wind-border: #ddd6fe;
+  --metric-wind-text: #6d28d9;
+  --body-gradient:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.25), transparent),
+    linear-gradient(180deg, #dbeafe 0%, var(--bg) 40%, #f8fafc 100%);
+  --shell-glow: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(56, 189, 248, 0.22), transparent 70%);
+  --topbar-bg: rgba(255, 255, 255, 0.88);
+  --topbar-border: rgba(2, 132, 199, 0.15);
+  --topbar-shadow: 0 2px 12px rgba(2, 132, 199, 0.08);
+  --badge-bg: linear-gradient(135deg, #ecfeff, #e0f2fe);
+  --badge-border: #a5f3fc;
+  --surface-glass: rgba(255, 255, 255, 0.94);
+  --marker-border: #fff;
+  --marker-label-bg: rgba(255, 255, 255, 0.94);
+  color-scheme: light;
+}
+
+html[data-theme='dark'],
+html.theme-dark {
+  --bg: #0b1220;
+  --surface: #151f32;
+  --surface-muted: #1a2740;
+  --surface-hover: #22304a;
+  --border: #2a3a55;
+  --border-strong: #3d5275;
+  --text-primary: #e8eef7;
+  --text-secondary: #a8b8d0;
+  --text-muted: #6b7f9e;
+  --text-placeholder: #6b7f9e;
+  --hero-text-subtle: rgba(255, 255, 255, 0.85);
+  --hero-text-faint: rgba(255, 255, 255, 0.7);
+  --hero-metric-label: rgba(255, 255, 255, 0.65);
+  --accent: #38bdf8;
+  --accent-dark: #7dd3fc;
+  --accent-soft: rgba(56, 189, 248, 0.14);
+  --accent-ring: #0ea5e9;
+  --accent-glow: rgba(56, 189, 248, 0.2);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --danger-border: rgba(248, 113, 113, 0.35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --hero-gradient: linear-gradient(135deg, #0c4a6e 0%, #0369a1 55%, #075985 100%);
+  --metric-rain-bg: rgba(59, 130, 246, 0.15);
+  --metric-rain-border: rgba(96, 165, 250, 0.35);
+  --metric-rain-text: #93c5fd;
+  --metric-humidity-bg: rgba(6, 182, 212, 0.12);
+  --metric-humidity-border: rgba(34, 211, 238, 0.3);
+  --metric-humidity-text: #67e8f9;
+  --metric-wind-bg: rgba(139, 92, 246, 0.12);
+  --metric-wind-border: rgba(167, 139, 250, 0.3);
+  --metric-wind-text: #c4b5fd;
+  --body-gradient:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.18), transparent),
+    linear-gradient(180deg, #0f172a 0%, var(--bg) 40%, #0b1220 100%);
+  --shell-glow: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(14, 165, 233, 0.12), transparent 70%);
+  --topbar-bg: rgba(21, 31, 50, 0.92);
+  --topbar-border: rgba(56, 189, 248, 0.18);
+  --topbar-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  --badge-bg: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(14, 165, 233, 0.12));
+  --badge-border: rgba(56, 189, 248, 0.35);
+  --surface-glass: rgba(21, 31, 50, 0.94);
+  --marker-border: #1e293b;
+  --marker-label-bg: rgba(21, 31, 50, 0.94);
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  background-image: var(--body-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
+
+.nems-theme-toggle {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.nems-theme-toggle__icon {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  pointer-events: none;
+}
+
+.nems-theme-toggle[data-theme-state='light'] .nems-theme-toggle__icon--sun,
+.nems-theme-toggle[data-theme-state='dark'] .nems-theme-toggle__icon--moon {
+  display: none;
+}
+
+.nems-theme-toggle[data-theme-state='dark'] .nems-theme-toggle__icon--sun,
+.nems-theme-toggle[data-theme-state='light'] .nems-theme-toggle__icon--moon {
+  display: block;
+}
+
+.nems-theme-toggle:hover,
+.nems-theme-toggle:focus-visible {
+  background: var(--surface-hover);
+  color: var(--accent);
+  border-color: var(--accent-ring);
+  outline: none;
+  transform: scale(1.05);
+}
+
+.nems-theme-toggle:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nems-theme-toggle {
+    transition: none;
+  }
+
+  .nems-theme-toggle:hover,
+  .nems-theme-toggle:focus-visible,
+  .nems-theme-toggle:active {
+    transform: none;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.section-title--subtle::before {
+  display: none;
+}
+
+.leaflet-container {
+  font-family: inherit;
+  background: var(--surface-muted);
+}
+
+html[data-theme='dark'] .leaflet-container,
+html.theme-dark .leaflet-container {
+  color-scheme: light;
+  background: #1a2740;
+}
+
+html[data-theme='dark'] .leaflet-tile-pane,
+html.theme-dark .leaflet-tile-pane {
+  filter: brightness(0.9) saturate(0.92);
+}
+
+html[data-theme='dark'] .leaflet-control-zoom a,
+html.theme-dark .leaflet-control-zoom a {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+html[data-theme='dark'] .leaflet-control-zoom a:hover,
+html.theme-dark .leaflet-control-zoom a:hover {
+  background: var(--surface-hover);
+}
+
+html[data-theme='dark'] .leaflet-control-attribution,
+html.theme-dark .leaflet-control-attribution {
+  background: rgba(21, 31, 50, 0.9) !important;
+  color: var(--text-muted) !important;
+}
+
+html[data-theme='dark'] .leaflet-control-attribution a,
+html.theme-dark .leaflet-control-attribution a {
+  color: var(--accent);
+}
+
+.nems-map-marker,
+.nems-map-active {
+  background: transparent !important;
+  border: none !important;
+}
+
+.nems-grid-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--marker-color, var(--accent));
+  border: 2px solid var(--marker-border);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.22);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.nems-grid-dot:hover {
+  transform: scale(1.25);
+}
+
+.nems-city-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.nems-city-marker__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--marker-color, var(--accent-dark));
+  border: 2px solid var(--marker-border);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.nems-city-marker:hover .nems-city-marker__pin {
+  transform: scale(1.08);
+}
+
+.nems-city-marker__temp {
+  white-space: nowrap;
+}
+
+.nems-city-marker__name {
+  max-width: 5.5rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--marker-label-bg);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+  box-shadow: var(--shadow-sm);
+}
+
+.nems-active-marker {
+  position: relative;
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.nems-active-marker__core {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--marker-border);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.45);
+}
+
+.nems-active-marker__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.35;
+  animation: nems-marker-pulse 1.8s ease-out infinite;
+}
+
+@keyframes nems-marker-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.leaflet-popup.nems-map-popup .leaflet-popup-content-wrapper {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding: 0;
+}
+
+.leaflet-popup.nems-map-popup .leaflet-popup-content {
+  margin: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.leaflet-popup.nems-map-popup .leaflet-popup-tip {
+  border-top-color: var(--border);
+}
+
+.nems-popup__temp {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.nems-popup__meta {
+  margin-top: 0.125rem;
+  color: var(--text-secondary);
+}
+
+.nems-popup__rain {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.scroll-x {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-ring) transparent;
+}
+
+.scroll-x::-webkit-scrollbar {
+  height: 5px;
+}
+
+.scroll-x::-webkit-scrollbar-thumb {
+  background: var(--accent-ring);
+  border-radius: 4px;
+}
+
+/* Entrance animations */
+@keyframes nems-fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nems-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nems-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nems-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes nems-bg-drift {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: translate(2%, 1.5%) scale(1.04);
+  }
+}
+
+.nems-enter {
+  animation-duration: 0.65s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+.nems-enter--down {
+  animation-name: nems-fade-in-down;
+}
+
+.nems-enter--up {
+  animation-name: nems-fade-in-up;
+}
+
+.nems-enter--fade {
+  animation-name: nems-fade-in;
+}
+
+.nems-enter--scale {
+  animation-name: nems-scale-in;
+}
+
+.nems-enter--d1 {
+  animation-delay: 0.08s;
+}
+
+.nems-enter--d2 {
+  animation-delay: 0.16s;
+}
+
+.nems-enter--d3 {
+  animation-delay: 0.24s;
+}
+
+.nems-enter--d4 {
+  animation-delay: 0.32s;
+}
+
+.nems-enter--d5 {
+  animation-delay: 0.4s;
+}
+
+.nems-enter--d6 {
+  animation-delay: 0.48s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nems-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

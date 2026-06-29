@@ -1,12 +1,22 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+
+import { ThemeService } from './core/services/theme.service';
+import { TopNavComponent } from './shared/components/top-nav/top-nav.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  imports: [RouterOutlet, TopNavComponent],
+  template: `
+    <div class="app-shell">
+      <app-top-nav />
+      <main class="app-main">
+        <router-outlet />
+      </main>
+    </div>
+  `,
+  styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('NEMS');
+  private readonly _theme = inject(ThemeService);
 }
